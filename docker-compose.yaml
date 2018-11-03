@@ -31,6 +31,26 @@ services:
     image: mongo:3.2
     ports:
     - "27017:27017"
+  grafana:
+    image: grafana/grafana
+    ports:
+    - "3000:3000"
+  graphite:
+    image: graphiteapp/graphite-statsd
+    ports:
+    - "8090:80"
+    - "2003-2004:2003-2004"
+    - "2023-2024:2023-2024"
+    - "8125:8125/udp"
+    - "8080:8080"
+    - "8126:8126"
+  sqlserver:
+   image: microsoft/mssql-server-linux:2017-latest
+   environment:
+   - "ACCEPT_EULA=Y"
+   - "SA_PASSWORD=Dalong!123%"
+   ports:
+   - "1433:1433"
   click:
      image: yandex/clickhouse-server
      ports:
