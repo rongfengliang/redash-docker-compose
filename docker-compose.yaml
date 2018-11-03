@@ -44,6 +44,12 @@ services:
     - "8125:8125/udp"
     - "8080:8080"
     - "8126:8126"
+  pipelinedb:
+    image: dalongrong/pipelinedb:1.0.0
+    environment:
+    - POSTGRES_PASSWORD=dalongdemo
+    ports:
+    - "5433:5432"
   sqlserver:
    image: microsoft/mssql-server-linux:2017-latest
    environment:
