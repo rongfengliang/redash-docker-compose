@@ -15,6 +15,8 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       REDASH_COOKIE_SECRET: veryverysecret
       REDASH_WEB_WORKERS: 4
+      REDASH_MAIL_SERVER: "smtp2http"
+      REDASH_MAIL_DEFAULT_SENDER: "dalong@qq.com"
   worker:
     image: redash/redash:latest
     command: scheduler
@@ -25,55 +27,41 @@ services:
       REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
       QUEUES: "queries,scheduled_queries,celery"
       WORKERS_COUNT: 2
+      REDASH_MAIL_SERVER: "smtp2http"
+      REDASH_MAIL_DEFAULT_SENDER: "dalong@qq.com"
   redis:
     image: redis:3.0-alpine
   mongodb:
     image: mongo:3.2
     ports:
     - "27017:27017"
+  benthos:
+    image: jeffail/benthos
+    volumes:
+    - "./conf/webhook.yaml:/benthos.yaml"
+    ports:
+    - "4195:4195"
+  smtp2http:
+    image: uflare/smtp2http
+    command: --listen=:25 --webhook=http://benthos:4195/ --strict=false
+  api:
+   build: ./
+   ports:
+   - "8080:80"
+  p:
+    image: prom/prometheus
+    volumes:
+    - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+    ports:
+    - "9090:9090"
   grafana:
     image: grafana/grafana
     ports:
     - "3000:3000"
-  graphite:
-    image: graphiteapp/graphite-statsd
-    ports:
-    - "8090:80"
-    - "2003-2004:2003-2004"
-    - "2023-2024:2023-2024"
-    - "8125:8125/udp"
-    - "8080:8080"
-    - "8126:8126"
-  pipelinedb:
-    image: dalongrong/pipelinedb:1.0.0
-    environment:
-    - POSTGRES_PASSWORD=dalongdemo
-    ports:
-    - "5433:5432"
-  sqlserver:
-   image: microsoft/mssql-server-linux:2017-latest
-   environment:
-   - "ACCEPT_EULA=Y"
-   - "SA_PASSWORD=Dalong!123%"
-   ports:
-   - "1433:1433"
-  click:
-     image: yandex/clickhouse-server
-     ports:
-     - "8123:8123"
-     - "9000:9000"
-     - "9009:9009"
-     ulimits:
-      nproc: 65535
-      nofile:
-       soft: 262144
-       hard: 262144
   postgres:
     image: postgres:9.5.6-alpine
     ports:
     - "5432:5432"
-    # volumes:
-    #   - /opt/postgres-data:/var/lib/postgresql/data
   nginx:
     image: redash/nginx:latest
     ports:

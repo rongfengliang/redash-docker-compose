@@ -1,0 +1,14 @@
+input:
+  type: broker
+  broker:
+    inputs:
+      - type: http_server
+        http_server:
+          path: /
+        processors:
+          - type: text
+            text:
+              operator: prepend
+              value: "get email message: "
+output:
+  type: stdout
